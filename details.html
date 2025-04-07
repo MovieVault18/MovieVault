@@ -7,102 +7,31 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="movie-container">
-        <div class="movie-header">
-            <h1 id="movie-title"></h1>
-            <p><strong>Rating:</strong> <span id="movie-rating"></span> ⭐</p>
-            <p><strong>Genres:</strong> <span id="movie-genres"></span></p>
-            <p><strong>Year:</strong> <span id="movie-year"></span></p>
-        </div>
-        <div class="movie-content">
-            <img id="movie-poster" src="" alt="Movie Poster">
-            <p id="movie-description"></p>
-        </div>
-    </div>
 
-    <div class="comments-section">
-        <h2>Comments</h2>
-        <textarea id="comment-input" placeholder="Write a comment..."></textarea>
-        <button onclick="postComment()">Post</button>
-        <div id="comments-list"></div>
+    <div class="movie-details">
+        <img id="details-movie-img" src="" alt="Movie Poster">
+        <h1 id="details-movie-title"></h1>
+        <p id="details-movie-year"></p>
+        <p id="details-movie-rating"></p>
+        <p id="details-movie-desc"></p>
+        <a href="index.html" class="back-button">Back to Home</a>
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const movieName = urlParams.get('movie');
+        document.addEventListener("DOMContentLoaded", () => {
+            let movieDetails = JSON.parse(localStorage.getItem('selectedMovie'));
 
-        fetch('movies.json')
-          .then(response => response.json())
-          .then(movies => {
-              let movie = movies.find(m => m.name === movieName);
-              if (movie) {
-                  document.getElementById('movie-title').textContent = movie.name;
-                  document.getElementById('movie-poster').src = movie.poster;
-                  document.getElementById('movie-poster').alt = movie.name;
-                  document.getElementById('movie-description').textContent = movie.description;
-                  document.getElementById('movie-genres').textContent = `${movie.genre1}, ${movie.genre2}`;
-                  document.getElementById('movie-rating').textContent = movie.rating;
-                  document.getElementById('movie-year').textContent = movie.year || "N/A";
-              } else {
-                  document.body.innerHTML = "<h2>Movie not found!</h2>";
-              }
-          })
-          .catch(error => console.error('Error loading movie details:', error));
-
-        // Comments Section
-        function postComment() {
-            let comment = document.getElementById("comment-input").value;
-            if (!comment.trim()) return;
-            
-            let commentsList = document.getElementById("comments-list");
-            let newComment = document.createElement("p");
-            newComment.textContent = comment;
-            commentsList.appendChild(newComment);
-
-            document.getElementById("comment-input").value = ""; // Clear input after posting
-        }
+            if (movieDetails) {
+                document.getElementById('details-movie-img').src = `img/${movieDetails.poster}`;
+                document.getElementById('details-movie-title').textContent = movieDetails.name;
+                document.getElementById('details-movie-year').textContent = `Year: ${movieDetails.year || 'N/A'}`;
+                document.getElementById('details-movie-rating').textContent = `Rating: ${movieDetails.rating}`;
+                document.getElementById('details-movie-desc').textContent = movieDetails.description;
+            } else {
+                document.body.innerHTML = "<h2 class='error-message'>No movie details found.</h2>";
+            }
+        });
     </script>
 
-    <style>
-        .movie-container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-            background: #222;
-            color: white;
-            border-radius: 10px;
-        }
-        .movie-header {
-            text-align: center;
-        }
-        .movie-content {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .movie-content img {
-            width: 200px;
-            border-radius: 10px;
-        }
-        .comments-section {
-            width: 80%;
-            margin: auto;
-            margin-top: 20px;
-            background: #333;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        #comment-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        #comments-list p {
-            background: #444;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-    </style>
 </body>
 </html>
