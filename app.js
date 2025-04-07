@@ -62,58 +62,34 @@ window.onload = function () {
   }
 };
 
-let movies = [];
+document.addEventListener("DOMContentLoaded", function () {
+    fetch("movies.json")
+        .then(response => response.json())
+        .then(movies => {
+            let movieContainers = document.querySelectorAll(".movie-list-item");
+            let usedIndexes = new Set();
 
-fetch("movies.json")
-  .then(response => response.json())
-  .then(data => {
-    movies = data;
-    displayRandomMovies();
-  });
+            movieContainers.forEach((container, index) => {
+                if (movies.length === usedIndexes.size) return; // Stop if all movies are used
 
-function displayRandomMovies() {
-  const movieList = document.getElementById("movie-list");
-  movieList.innerHTML = "";
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * movies.length);
+                } while (usedIndexes.has(randomIndex)); // Ensure no repetition
 
-  let randomMovies = movies.sort(() => 0.5 - Math.random()).slice(0, 6);
+                usedIndexes.add(randomIndex);
+                let movie = movies[randomIndex];
 
-  randomMovies.forEach((movie, index) => {
-    const movieItem = document.createElement("div");
-    movieItem.classList.add("movie-list-item");
-    movieItem.setAttribute("data-name", movie.name);
-    movieItem.innerHTML = `
-      <img class="movie-list-item-img" src="${movie.poster}" alt="">
-      <span class="movie-list-item-title">${movie.name}</span>
-      <p class="movie-list-item-desc">${movie.description}</p>
-      <button class="movie-list-item-button" onclick="showMovieDetails('${movie.name}')">Details</button>
-      <h4>${movie.name}</h4>
-    `;
-    movieList.appendChild(movieItem);
-  });
-}
-
-function searchMovies() {
-  const query = document.getElementById("search-bar").value.toLowerCase();
-  const filteredMovies = movies.filter(movie => movie.name.toLowerCase().includes(query));
-
-  const movieList = document.getElementById("movie-list");
-  movieList.innerHTML = "";
-
-  filteredMovies.forEach(movie => {
-    const movieItem = document.createElement("div");
-    movieItem.classList.add("movie-list-item");
-    movieItem.setAttribute("data-name", movie.name);
-    movieItem.innerHTML = `
-      <img class="movie-list-item-img" src="${movie.poster}" alt="">
-      <span class="movie-list-item-title">${movie.name}</span>
-      <p class="movie-list-item-desc">${movie.description}</p>
-      <button class="movie-list-item-button" onclick="showMovieDetails('${movie.name}')">Details</button>
-      <h4>${movie.name}</h4>
-    `;
-    movieList.appendChild(movieItem);
-  });
-}
-function showMovieDetails(movieName) {
-  localStorage.setItem("selectedMovie", movieName);
-  window.location.href = "details.html";
-}
+                container.querySelector(".movie-list-item-img").src = movie.poster;
+                container.querySelector(".movie-list-item-img").alt = movie.name;
+                container.querySelector(".movie-list-item-title").textContent = movie.name;
+                container.querySelector(".movie-list-item-desc").textContent = movie.description;
+                
+                // Ensure the button correctly navigates to details.html with movie name as parameter
+                container.querySelector(".movie-list-item-button").onclick = function () {
+                    window.location.href = `details.html?movie=${encodeURIComponent(movie.name)}`;
+                };
+            });
+        })
+        .catch(error => console.error("Error loading movies:", error));
+});
