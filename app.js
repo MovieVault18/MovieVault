@@ -34,53 +34,9 @@ ball.addEventListener("click", () => {
   ball.classList.toggle("active");
 });
 
-function goToDetails(movieId) {
-  window.location.href = `details.html?id=${movieId}`;
-}
 
 function goToGenre(genre) {
   window.location.href = `genre.html?genre=${genre}`;
-}
-
-let movies = [
-  { name: "Inception", id: 1 },
-  { name: "Interstellar", id: 2 },
-  { name: "The Dark Knight", id: 3 }
-];
-
-function searchMovies() {
-  let input = document.getElementById("searchInput").value.toLowerCase();
-  let resultsDiv = document.getElementById("searchResults");
-  resultsDiv.innerHTML = ""; // Clear previous results
-
-  console.log("Search input:", input); // Debugging
-
-  if (input.trim() === "") {
-      resultsDiv.style.display = "none"; // Hide results if empty
-      return;
-  }
-
-  let filteredMovies = movies.filter(movie => movie.name.toLowerCase().includes(input));
-
-  console.log("Filtered Movies:", filteredMovies); // Debugging
-
-  if (filteredMovies.length === 0) {
-      resultsDiv.innerHTML = "<p class='no-results'>No results found</p>";
-      resultsDiv.style.display = "block";
-      return;
-  }
-
-  filteredMovies.forEach(movie => {
-      let movieItem = document.createElement("div");
-      movieItem.textContent = movie.name;
-      movieItem.classList.add("search-result");
-      movieItem.onclick = function () {
-          goToDetails(movie.id); // Calls function to open detail.html
-      };
-      resultsDiv.appendChild(movieItem);
-  });
-
-  resultsDiv.style.display = "block"; // Ensure results are shown
 }
 
 
@@ -105,3 +61,92 @@ window.onload = function () {
       });
   }
 };
+
+let movies = [];
+
+// Preset movies with assigned numbers
+const presetMovies = {
+    1: { name: "Inception", poster: "inception.jpg", year: "2010", rating: "8.8", description: "A skilled thief is given a chance at redemption if he can successfully plant an idea into someone's subconscious." },
+    2: { name: "The Matrix", poster: "matrix.jpg", year: "1999", rating: "8.7", description: "A hacker learns about the true nature of reality and his role in the war against its controllers." }
+};
+
+function loadMovies() {
+    fetch('movies.csv')
+        .then(response => response.text())
+        .then(csvText => {
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    movies = results.data;
+                    assignRandomMovies();
+                }
+            });
+        })
+        .catch(error => console.error('Error loading CSV:', error));
+}
+
+function assignRandomMovies() {
+    let movieElements = document.querySelectorAll('.movie-list-item:not(.preset-movies .movie-list-item)');
+    let usedIndexes = new Set();
+
+    movieElements.forEach((movieElement) => {
+        let randomIndex;
+        do {
+            randomIndex = Math.floor(Math.random() * movies.length);
+        } while (usedIndexes.has(randomIndex));
+        usedIndexes.add(randomIndex);
+
+        let movie = movies[randomIndex];
+
+        movieElement.querySelector('.movie-list-item-img').src = `img/${movie.poster}`;
+        movieElement.querySelector('.movie-list-item-title').textContent = movie.name;
+        movieElement.querySelector('.movie-list-item-desc').textContent = movie.description;
+
+        movieElement.querySelector('.movie-list-item-button').addEventListener('click', () => {
+            saveAndGoToDetails(movie);
+        });
+    });
+}
+
+function searchMovies() {
+    let input = document.getElementById("searchBox").value.toLowerCase();
+    let results = document.getElementById("searchResults");
+    results.innerHTML = "";
+
+    if (input.trim() === "") return;
+
+    let filteredMovies = movies.filter(movie => movie.name.toLowerCase().includes(input));
+
+    filteredMovies.forEach(movie => {
+        let li = document.createElement("li");
+        li.textContent = movie.name;
+        li.onclick = () => saveAndGoToDetails(movie);
+        results.appendChild(li);
+    });
+}
+
+function saveAndGoToDetails(movie) {
+    let movieDetails = {
+        name: movie.name,
+        poster: movie.poster,
+        year: movie.year,
+        rating: movie.rating,
+        description: movie.description
+    };
+    localStorage.setItem('selectedMovie', JSON.stringify(movieDetails));
+    window.location.href = 'details.html';
+}
+
+// Function to get a preset movie by number
+function showPresetMovie(movieNumber) {
+    if (presetMovies[movieNumber]) {
+        let movie = presetMovies[movieNumber];
+        localStorage.setItem('selectedMovie', JSON.stringify(movie));
+        window.location.href = 'details.html';
+    } else {
+        alert("Movie not found!");
+    }
+}
+
+loadMovies();
