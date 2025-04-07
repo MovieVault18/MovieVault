@@ -7,33 +7,102 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="movie-container">
+        <div class="movie-header">
+            <h1 id="movie-title"></h1>
+            <p><strong>Rating:</strong> <span id="movie-rating"></span> ⭐</p>
+            <p><strong>Genres:</strong> <span id="movie-genres"></span></p>
+            <p><strong>Year:</strong> <span id="movie-year"></span></p>
+        </div>
+        <div class="movie-content">
+            <img id="movie-poster" src="" alt="Movie Poster">
+            <p id="movie-description"></p>
+        </div>
+    </div>
 
-    <div id="movie-details"></div>
+    <div class="comments-section">
+        <h2>Comments</h2>
+        <textarea id="comment-input" placeholder="Write a comment..."></textarea>
+        <button onclick="postComment()">Post</button>
+        <div id="comments-list"></div>
+    </div>
+
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-  const selectedMovieName = localStorage.getItem("selectedMovie");
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieName = urlParams.get('movie');
 
-  fetch("movies.json")
-    .then(response => response.json())
-    .then(data => {
-      const movie = data.find(m => m.name === selectedMovieName);
+        fetch('movies.json')
+          .then(response => response.json())
+          .then(movies => {
+              let movie = movies.find(m => m.name === movieName);
+              if (movie) {
+                  document.getElementById('movie-title').textContent = movie.name;
+                  document.getElementById('movie-poster').src = movie.poster;
+                  document.getElementById('movie-poster').alt = movie.name;
+                  document.getElementById('movie-description').textContent = movie.description;
+                  document.getElementById('movie-genres').textContent = `${movie.genre1}, ${movie.genre2}`;
+                  document.getElementById('movie-rating').textContent = movie.rating;
+                  document.getElementById('movie-year').textContent = movie.year || "N/A";
+              } else {
+                  document.body.innerHTML = "<h2>Movie not found!</h2>";
+              }
+          })
+          .catch(error => console.error('Error loading movie details:', error));
 
-      if (movie) {
-        document.getElementById("movie-details").innerHTML = `
-          <h1>${movie.name}</h1>
-          <img src="${movie.poster}" alt="${movie.name}">
-          <p><strong>Rating:</strong> ${movie.rating}</p>
-          <p><strong>Genres:</strong> ${movie.genre1}${movie.genre2 ? ", " + movie.genre2 : ""}</p>
-          <p><strong>Year:</strong> ${movie.year}</p>
-          <p>${movie.description}</p>
-        `;
-      } else {
-        document.getElementById("movie-details").innerHTML = "<p>Movie not found.</p>";
-      }
-    });
-});
-    
+        // Comments Section
+        function postComment() {
+            let comment = document.getElementById("comment-input").value;
+            if (!comment.trim()) return;
+            
+            let commentsList = document.getElementById("comments-list");
+            let newComment = document.createElement("p");
+            newComment.textContent = comment;
+            commentsList.appendChild(newComment);
+
+            document.getElementById("comment-input").value = ""; // Clear input after posting
+        }
     </script>
 
+    <style>
+        .movie-container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background: #222;
+            color: white;
+            border-radius: 10px;
+        }
+        .movie-header {
+            text-align: center;
+        }
+        .movie-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .movie-content img {
+            width: 200px;
+            border-radius: 10px;
+        }
+        .comments-section {
+            width: 80%;
+            margin: auto;
+            margin-top: 20px;
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #comment-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #comments-list p {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+    </style>
 </body>
 </html>
