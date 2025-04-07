@@ -1,67 +1,83 @@
-
+/* General Page Styling */
 body {
-    background-color: #121212;
-    color: white;
     font-family: Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #ffffff;
     margin: 0;
     padding: 0;
-}
-
-
-header {
-    background-color: #1a1a1a;
-    padding: 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-
-#movie-details {
     display: flex;
-    max-width: 900px;
-    margin: 40px auto;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Movie Details Container */
+.movie-details {
     background-color: #222;
-    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
     padding: 20px;
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
-}
-
-.poster-container img {
-    width: 300px;
-    height: 450px;
     border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.3);
+    text-align: center;
 }
 
-.info-container {
-    margin-left: 20px;
-    flex-grow: 1;
+/* Movie Poster */
+#details-movie-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #ffd700;
+    margin-bottom: 15px;
 }
 
-.info-container h2 {
-    font-size: 28px;
+/* Movie Title */
+#details-movie-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffd700;
     margin-bottom: 10px;
 }
 
-.info-container p {
-    font-size: 18px;
+/* Movie Info (Year, Rating, Description) */
+#details-movie-year,
+#details-movie-rating {
+    font-size: 16px;
+    font-weight: bold;
+    color: #bbb;
     margin: 5px 0;
 }
 
-#movie-rating {
-    color: #ffcc00;
-    font-size: 22px;
-    font-weight: bold;
+#details-movie-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ddd;
+    margin-top: 10px;
 }
 
-.back-btn {
+/* Back Button */
+.back-button {
     display: inline-block;
-    margin: 10px;
-    color: #ffcc00;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #ffd700;
+    color: #000;
     text-decoration: none;
-    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
 }
 
-.back-btn:hover {
-    text-decoration: underline;
+.back-button:hover {
+    background-color: #e6c200;
+    transform: scale(1.05);
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    font-size: 18px;
+    text-align: center;
+    margin-top: 20px;
 }
