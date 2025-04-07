@@ -64,89 +64,56 @@ window.onload = function () {
 
 let movies = [];
 
-// Preset movies with assigned numbers
-const presetMovies = {
-    1: { name: "Inception", poster: "inception.jpg", year: "2010", rating: "8.8", description: "A skilled thief is given a chance at redemption if he can successfully plant an idea into someone's subconscious." },
-    2: { name: "The Matrix", poster: "matrix.jpg", year: "1999", rating: "8.7", description: "A hacker learns about the true nature of reality and his role in the war against its controllers." }
-};
+fetch("movies.json")
+  .then(response => response.json())
+  .then(data => {
+    movies = data;
+    displayRandomMovies();
+  });
 
-function loadMovies() {
-    fetch('movies.csv')
-        .then(response => response.text())
-        .then(csvText => {
-            Papa.parse(csvText, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    movies = results.data;
-                    assignRandomMovies();
-                }
-            });
-        })
-        .catch(error => console.error('Error loading CSV:', error));
-}
+function displayRandomMovies() {
+  const movieList = document.getElementById("movie-list");
+  movieList.innerHTML = "";
 
-function assignRandomMovies() {
-    let movieElements = document.querySelectorAll('.movie-list-item:not(.preset-movies .movie-list-item)');
-    let usedIndexes = new Set();
+  let randomMovies = movies.sort(() => 0.5 - Math.random()).slice(0, 6);
 
-    movieElements.forEach((movieElement) => {
-        let randomIndex;
-        do {
-            randomIndex = Math.floor(Math.random() * movies.length);
-        } while (usedIndexes.has(randomIndex));
-        usedIndexes.add(randomIndex);
-
-        let movie = movies[randomIndex];
-
-        movieElement.querySelector('.movie-list-item-img').src = `img/${movie.poster}`;
-        movieElement.querySelector('.movie-list-item-title').textContent = movie.name;
-        movieElement.querySelector('.movie-list-item-desc').textContent = movie.description;
-
-        movieElement.querySelector('.movie-list-item-button').addEventListener('click', () => {
-            saveAndGoToDetails(movie);
-        });
-    });
+  randomMovies.forEach((movie, index) => {
+    const movieItem = document.createElement("div");
+    movieItem.classList.add("movie-list-item");
+    movieItem.setAttribute("data-name", movie.name);
+    movieItem.innerHTML = `
+      <img class="movie-list-item-img" src="${movie.poster}" alt="">
+      <span class="movie-list-item-title">${movie.name}</span>
+      <p class="movie-list-item-desc">${movie.description}</p>
+      <button class="movie-list-item-button" onclick="showMovieDetails('${movie.name}')">Details</button>
+      <h4>${movie.name}</h4>
+    `;
+    movieList.appendChild(movieItem);
+  });
 }
 
 function searchMovies() {
-    let input = document.getElementById("searchBox").value.toLowerCase();
-    let results = document.getElementById("searchResults");
-    results.innerHTML = "";
+  const query = document.getElementById("search-bar").value.toLowerCase();
+  const filteredMovies = movies.filter(movie => movie.name.toLowerCase().includes(query));
 
-    if (input.trim() === "") return;
+  const movieList = document.getElementById("movie-list");
+  movieList.innerHTML = "";
 
-    let filteredMovies = movies.filter(movie => movie.name.toLowerCase().includes(input));
-
-    filteredMovies.forEach(movie => {
-        let li = document.createElement("li");
-        li.textContent = movie.name;
-        li.onclick = () => saveAndGoToDetails(movie);
-        results.appendChild(li);
-    });
+  filteredMovies.forEach(movie => {
+    const movieItem = document.createElement("div");
+    movieItem.classList.add("movie-list-item");
+    movieItem.setAttribute("data-name", movie.name);
+    movieItem.innerHTML = `
+      <img class="movie-list-item-img" src="${movie.poster}" alt="">
+      <span class="movie-list-item-title">${movie.name}</span>
+      <p class="movie-list-item-desc">${movie.description}</p>
+      <button class="movie-list-item-button" onclick="showMovieDetails('${movie.name}')">Details</button>
+      <h4>${movie.name}</h4>
+    `;
+    movieList.appendChild(movieItem);
+  });
 }
-
-function saveAndGoToDetails(movie) {
-    let movieDetails = {
-        name: movie.name,
-        poster: movie.poster,
-        year: movie.year,
-        rating: movie.rating,
-        description: movie.description
-    };
-    localStorage.setItem('selectedMovie', JSON.stringify(movieDetails));
-    window.location.href = 'details.html';
+function showMovieDetails(movieName) {
+  localStorage.setItem("selectedMovie", movieName);
+  window.location.href = "details.html";
 }
-
-// Function to get a preset movie by number
-function showPresetMovie(movieNumber) {
-    if (presetMovies[movieNumber]) {
-        let movie = presetMovies[movieNumber];
-        localStorage.setItem('selectedMovie', JSON.stringify(movie));
-        window.location.href = 'details.html';
-    } else {
-        alert("Movie not found!");
-    }
-}
-
-loadMovies();
